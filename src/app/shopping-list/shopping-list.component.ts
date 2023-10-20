@@ -17,12 +17,16 @@ import { Subscription } from 'rxjs';
 
     ngOnInit(): void {
       this.ingredients = this.shoppingListService.getIngredients();
-      this.subscription = this.shoppingListService.ingredientAdded.subscribe((ingredients: Ingredient[]) => {
+      this.subscription = this.shoppingListService.ingredientsChanged.subscribe((ingredients: Ingredient[]) => {
         this.ingredients = ingredients;
       });
     }
 
     ngOnDestroy(): void {
       this.subscription.unsubscribe();
+    }
+
+    onEditIngredient(index: number){
+      this.shoppingListService.startedEdit.next(index);
     }
   }

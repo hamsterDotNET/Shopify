@@ -5,21 +5,36 @@ import { Ingredient } from "../shared/ingredient.model";
 
 @Injectable()
 export class ShoppingListService{
-  private ingredients: Ingredient[] = [];
+  private ingredients: Ingredient[] = [{ name:'Bread', amount: 1 }];
   
-  ingredientAdded = new Subject<Ingredient[]>();
+  ingredientsChanged = new Subject<Ingredient[]>();
+  startedEdit = new Subject<number>();
 
   addIngredient(ingredient: Ingredient){
     this.ingredients.push(ingredient);
-    this.ingredientAdded.next(this.getIngredients());
+    this.ingredientsChanged.next(this.getIngredients());
   }
 
   addIngredients(ingredients: Ingredient[]){
     this.ingredients.push(...ingredients);
-    this.ingredientAdded.next(this.getIngredients());
+    this.ingredientsChanged.next(this.getIngredients());
+  }
+
+  deleteIngredient(index: number) {
+    this.ingredients.splice(index, 1);
+    this.ingredientsChanged.next(this.getIngredients());
+  }
+
+  getIngredient(index: number): Ingredient {
+    return this.ingredients[index];
   }
 
   getIngredients(){
     return this.ingredients.slice();
+  }
+
+  updateIngredient(index: number, ingredient: Ingredient){
+    this.ingredients[index] = ingredient;
+    this.ingredientsChanged.next(this.getIngredients());
   }
 }
