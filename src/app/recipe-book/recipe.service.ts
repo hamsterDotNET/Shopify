@@ -26,11 +26,19 @@ export class RecipeService{
 
   recipeSelected = new Subject<Recipe>();
   
+  addRecipe(recipe: Recipe){
+
+  }
+
   getRecipe(index: number){
     return this.recipes[index];
   }
 
   getRecipes(){
     return this.recipes.slice();
+  }
+
+  updateRecipe(id: number, recipe: Recipe){
+
   }
 }
