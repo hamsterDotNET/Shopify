@@ -5,6 +5,7 @@ import { Ingredient } from "../shared/ingredient.model";
 
 export class RecipeService{
   private recipes: Recipe[] = [
+/*
     new Recipe('One Pan Creamy Garlic Chicken Breasts',
       'Tender chicken breasts smothered in a rich garlic cream sauce, all made in the same pan, and ready in less than 30 minutes!',
       'https://littlesunnykitchen.com/wp-content/uploads/2022/03/Creamy-Garlic-Chicken-1.jpg',
@@ -22,12 +23,19 @@ export class RecipeService{
         new Ingredient('Italian Sausage', 1),
         new Ingredient('Chili Beans', 3),
       ]),
+*/
   ];
 
-  recipeSelected = new Subject<Recipe>();
+  recipesChanged = new Subject<Recipe[]>();
   
   addRecipe(recipe: Recipe){
+    this.recipes.push(recipe);
+    this.notifyRecipesChanged();
+  }
 
+  deleteRecipe(index: number){
+    this.recipes.splice(index, 1);
+    this.notifyRecipesChanged();
   }
 
   getRecipe(index: number){
@@ -38,7 +46,17 @@ export class RecipeService{
     return this.recipes.slice();
   }
 
-  updateRecipe(id: number, recipe: Recipe){
+  setRecipes(recipes: Recipe[]){
+    this.recipes = recipes;
+    this.notifyRecipesChanged();
+  }
 
+  updateRecipe(id: number, recipe: Recipe){
+    this.recipes[id] = recipe;
+    this.notifyRecipesChanged();
+  }
+
+  private notifyRecipesChanged(){
+    this.recipesChanged.next(this.getRecipes());
   }
 }
