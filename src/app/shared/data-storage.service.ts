@@ -12,17 +12,18 @@ export class DataStorageService {
   }
 
   fetchRecipes(){
-      return this.http.get<Recipe[]>(this.uri)
-        .pipe(
-          map(recipes => {
-            return recipes.map(recipe => {
-              return { ...recipe, ingredients: recipe.ingredients ? recipe.ingredients : [] };
-            })
-          }),
-          tap(recipes => {
-            this.recipeSrvc.setRecipes(recipes);
+    return this.http.get<Recipe[]>(this.uri)
+      .pipe(
+        map(recipes => {
+          return recipes.map(recipe => {
+            // make sure the recipe.ingredients is not a null array
+            return { ...recipe, ingredients: recipe.ingredients ? recipe.ingredients : [] };
           })
-        );
+        }),
+        tap(recipes => {
+          this.recipeSrvc.setRecipes(recipes);
+        })
+      );
   }
   
   storeRecipes(){
@@ -30,10 +31,6 @@ export class DataStorageService {
     this.http.put(this.uri, recipes, {}).subscribe(
       response => {
         console.log(response);
-      },
-      error => {
-
-      }
-    );
+      });
   }
 }
