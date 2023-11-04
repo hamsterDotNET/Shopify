@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { User } from './user-model';
+import { Router } from '@angular/router';
 
 export interface AuthResponseData{
   idToken: string;
@@ -15,10 +16,41 @@ export interface AuthResponseData{
 
 @Injectable({ providedIn: 'root' })
 export class AuthenticationService {
-
+  private readonly lsKey = 'userData';
+  private tokenTimeout: any = null;
   user = new BehaviorSubject<User>(null);
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
+
+  autoLogin(){
+    const userData: {
+      email: string,
+      id: string,
+      _token: string
+      _tokenExpires: string
+    } = JSON.parse(localStorage.getItem(this.lsKey));
+
+    if (!userData){
+      console.log('No user data available in local storage.');
+      return false;
+    }
+
+    const expiresIn = new Date(userData._tokenExpires);
+    const user = new User(userData.email, userData.id, userData._token, expiresIn);
+    if (!user.token){
+      console.log(`User token has expired: ${expiresIn}`);
+      return false;
+    }
+
+    this.user.next(user);
+
+    const expirationDuration = expiresIn.getTime() - new Date().getTime();
+    this.autoLogout(expirationDuration);
+  }
+
+  autoLogout(interval: number){
+    this.tokenTimeout = setTimeout(() => this.signOut(), interval);
+  }
 
   signin(email: string, password: string){
     return this.http.post<AuthResponseData>(
@@ -32,6 +64,16 @@ export class AuthenticationService {
       tap(response =>{
         this.handleAuthentication(response.email, response.localId, response.idToken, +response.expiresIn);
       }));
+  }
+
+  signOut(){
+    this.user.next(null);
+    this.router.navigate(['/auth']);
+    localStorage.removeItem(this.lsKey);
+    if (this.tokenTimeout){
+      clearTimeout(this.tokenTimeout);
+    }
+    this.tokenTimeout = null;
   }
 
   signup(email: string, password: string){
@@ -49,7 +91,8 @@ export class AuthenticationService {
   }
 
   private handleAuthentication(email: string, id: string, token: string, tokenExpiresIn: number){
-    const expiresOn = new Date(new Date().getTime() + tokenExpiresIn * 1000);
+    const expiresMs = tokenExpiresIn * 1000;
+    const expiresOn = new Date(new Date().getTime() + expiresMs);
     const user = new User(
       email,
       id,
@@ -57,6 +100,9 @@ export class AuthenticationService {
       expiresOn);
 
     this.user.next(user);
+    this.autoLogout(expiresMs);
+
+    localStorage.setItem(this.lsKey, JSON.stringify(user));
 }
 
   private handleError(errorResp: HttpErrorResponse){

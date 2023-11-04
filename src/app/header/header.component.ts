@@ -32,6 +32,10 @@ import { AuthenticationService } from '../auth/authentication.service';
       this.dataStorageSrvc.fetchRecipes().subscribe();
     }
 
+    onLogOut(){
+      this.authSrvc.signOut();
+    }
+  
     onSaveData(){
       this.dataStorageSrvc.storeRecipes();
     }
