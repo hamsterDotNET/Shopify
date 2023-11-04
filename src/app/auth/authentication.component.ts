@@ -6,8 +6,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-authentication',
-  templateUrl: './authentication.component.html',
-  styleUrls: ['./authentication.component.css']
+  templateUrl: './authentication.component.html'
 })
 export class AuthenticationComponent {
   isLoading = false;
