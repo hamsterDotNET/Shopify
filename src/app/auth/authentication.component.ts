@@ -14,6 +14,10 @@ export class AuthenticationComponent {
 
   constructor(private authSrvc: AuthenticationService, private router: Router){}
 
+  onHandleError(){
+    this.error = null;
+  }
+
   onSignUp(form: NgForm){
     this.doAuthRequest(true, form.value);
     form.reset();
@@ -35,11 +39,11 @@ export class AuthenticationComponent {
     authSrvcObsv.subscribe(response =>{
       console.log(response);
       this.router.navigate(['/recipe-book']);
+      this.isLoading = false;
     },
     error =>{
       this.error = error;
+      this.isLoading = false;
     });
-
-    this.isLoading = false;
   }
 }
